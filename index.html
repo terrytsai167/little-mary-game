@@ -412,4 +412,210 @@ function init() {
     bets[key] = 0;
     const btn = document.createElement('button');
     btn.className = 'bet-btn';
-    btn.id = `btn-${key}`; btn.innerHTML = `${SYMBOLS[key].name} (
+    btn.id = `btn-${key}`;
+    btn.innerHTML = `${SYMBOLS[key].name} (0)<small>x${SYMBOLS[key].odds}</small>`;
+    btn.onclick = () => placeBet(key);
+    betControls.appendChild(btn);
+  });
+  highlightCell(0);
+}
+
+function placeBet(key) {
+  if (isRunning || pendingWin > 0 || credit < 10) return;
+  sfx.playBet();
+  credit -= 10;
+  bets[key] += 10;
+  updateUI();
+}
+
+function clearBets() {
+  if (isRunning || pendingWin > 0) return;
+  const total = Object.values(bets).reduce((a, b) => a + b, 0);
+  if (total > 0) {
+    sfx.playTone(400, 'triangle', 0.08);
+    credit += total;
+    Object.keys(bets).forEach(k => bets[k] = 0);
+    updateUI();
+  }
+}
+
+function updateUI() {
+  document.getElementById('credit').innerText = credit;
+  const total = Object.values(bets).reduce((a, b) => a + b, 0);
+  document.getElementById('totalBet').innerText = total;
+  Object.keys(SYMBOLS).forEach(key => {
+    document.getElementById(`btn-${key}`).innerHTML = `${SYMBOLS[key].name} (${bets[key]})<small>x${SYMBOLS[key].odds}</small>`;
+  });
+}
+
+function highlightCell(idx) {
+  document.querySelectorAll('.cell').forEach(c => c.classList.remove('active'));
+  document.getElementById(`cell-${idx}`).classList.add('active');
+}
+
+// ==========================================
+// 4. 權重抽獎與跑燈動畫
+// ==========================================
+function getWeightedTarget() {
+  const totalWeight = BOARD_DATA.reduce((sum, item) => sum + item.weight, 0);
+  let random = Math.floor(Math.random() * totalWeight);
+  for (let i = 0; i < BOARD_DATA.length; i++) {
+    if (random < BOARD_DATA[i].weight) return i;
+    random -= BOARD_DATA[i].weight;
+  }
+  return 0;
+}
+
+function startGame() {
+  let totalBet = Object.values(bets).reduce((a, b) => a + b, 0);
+  
+  if (totalBet === 0 && Object.values(lastBets).reduce((a, b) => a + b, 0) > 0) {
+    const lastTotal = Object.values(lastBets).reduce((a, b) => a + b, 0);
+    if (credit >= lastTotal) {
+      credit -= lastTotal;
+      bets = { ...lastBets };
+      totalBet = lastTotal;
+      sfx.playBet();
+      updateUI();
+    }
+  }
+
+  if (isRunning || totalBet === 0) {
+    document.getElementById('status').innerText = '請先押注才能開始！';
+    return;
+  }
+
+  lastBets = { ...bets };
+  isRunning = true;
+  document.getElementById('startBtn').disabled = true;
+  document.getElementById('clearBtn').disabled = true;
+  document.getElementById('status').innerText = '開獎中...';
+
+  const targetIndex = getWeightedTarget();
+  const rounds = 3;
+  const totalSteps = (rounds * 24) + ((targetIndex - currentIndex + 24) % 24);
+  
+  let step = 0;
+  function runStep() {
+    currentIndex = (currentIndex + 1) % 24;
+    highlightCell(currentIndex);
+    sfx.playStep(step, totalSteps);
+    step++;
+
+    if (step < totalSteps) {
+      let delay = 35;
+      const remain = totalSteps - step;
+      if (step < 8) delay = 150 - step * 15;
+      else if (remain < 12) delay = 40 + Math.pow(12 - remain, 2) * 3;
+      
+      setTimeout(runStep, delay);
+    } else {
+      settleGame(targetIndex);
+    }
+  }
+  runStep();
+}
+
+function settleGame(targetIndex) {
+  const winType = BOARD_DATA[targetIndex].type;
+  const odds = SYMBOLS[winType].odds;
+  const winAmount = bets[winType] * odds;
+  
+  Object.keys(bets).forEach(k => bets[k] = 0);
+  updateUI();
+  isRunning = false;
+
+  if (winAmount > 0) {
+    pendingWin = winAmount;
+    sfx.playWin(odds >= 20);
+    enterGambleMode();
+  } else {
+    sfx.playLose();
+    document.getElementById('status').innerText = `開出 ${SYMBOLS[winType].name}，再接再厲！`;
+    document.getElementById('startBtn').disabled = false;
+    document.getElementById('clearBtn').disabled = false;
+  }
+}
+
+// ==========================================
+// 5. 比倍（猜大小）模式邏輯
+// ==========================================
+function enterGambleMode() {
+  document.getElementById('status').innerText = '🎉 中獎！比倍或得分？';
+  document.getElementById('pendingWin').innerText = pendingWin;
+  document.getElementById('gambleNumber').innerText = '??';
+  
+  document.getElementById('gambleDisplay').style.display = 'block';
+  document.getElementById('gambleControls').style.display = 'flex';
+  document.getElementById('betControls').style.display = 'none';
+  document.getElementById('mainActions').style.display = 'none';
+}
+
+function playGamble(guess) {
+  if (isGambling || pendingWin <= 0) return;
+  isGambling = true;
+
+  const finalNum = Math.floor(Math.random() * 14) + 1;
+  let tick = 0;
+  const maxTicks = 20;
+  const numEl = document.getElementById('gambleNumber');
+  document.getElementById('status').innerText = guess === 'SMALL' ? '押注：小 (1~7)...' : '押注：大 (8~14)...';
+
+  const timer = setInterval(() => {
+    const fakeNum = Math.floor(Math.random() * 14) + 1;
+    numEl.innerText = fakeNum.toString().padStart(2, '0');
+    sfx.playGambleTick(tick);
+    tick++;
+
+    if (tick >= maxTicks) {
+      clearInterval(timer);
+      numEl.innerText = finalNum.toString().padStart(2, '0');
+      evaluateGamble(guess, finalNum);
+    }
+  }, 60);
+}
+
+function evaluateGamble(guess, finalNum) {
+  const isSmall = finalNum >= 1 && finalNum <= 7;
+  const isWin = (guess === 'SMALL' && isSmall) || (guess === 'BIG' && !isSmall);
+
+  if (isWin) {
+    pendingWin *= 2;
+    sfx.playWin(false);
+    document.getElementById('pendingWin').innerText = pendingWin;
+    document.getElementById('status').innerText = `猜中 (${finalNum})！獎金翻倍！`;
+    isGambling = false;
+  } else {
+    sfx.playGambleLose();
+    document.getElementById('status').innerText = `開出 ${finalNum}，比倍失敗歸零`;
+    pendingWin = 0;
+    isGambling = false;
+    setTimeout(exitGambleMode, 1300);
+  }
+}
+
+function collectWin() {
+  if (isGambling) return;
+  if (pendingWin > 0) {
+    sfx.playBet();
+    credit += pendingWin;
+    pendingWin = 0;
+    updateUI();
+  }
+  document.getElementById('status').innerText = '💰 獎金入袋！按開始可續押';
+  exitGambleMode();
+}
+
+function exitGambleMode() {
+  document.getElementById('gambleDisplay').style.display = 'none';
+  document.getElementById('gambleControls').style.display = 'none';
+  document.getElementById('betControls').style.display = 'grid';
+  document.getElementById('mainActions').style.display = 'flex';
+  document.getElementById('startBtn').disabled = false;
+  document.getElementById('clearBtn').disabled = false;
+}
+
+init();
+</script>
+</body>
+</html>
