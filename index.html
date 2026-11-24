@@ -3,260 +3,354 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>經典小瑪莉機台 (RWD 手機/電腦雙用版)</title>
+<title>懷舊柑仔店 - 經典小瑪莉機台</title>
 <style>
   * {
     box-sizing: border-box;
     user-select: none;
-    -webkit-tap-highlight-color: transparent; /* 移除手機點擊藍框 */
+    -webkit-tap-highlight-color: transparent;
   }
   body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: #1a1a1d;
-    color: #fff;
+    font-family: 'Arial Black', 'Microsoft JhengHei', sans-serif;
+    background: #1c1917;
+    margin: 0;
+    padding: 8px 6px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: 100dvh; /* 適應手機瀏覽器動態網址列 */
-    margin: 0;
-    padding: 10px 8px;
-    touch-action: manipulation; /* 防止連點按鈕觸發螢幕放大 */
-  }
-  h2 {
-    margin: 0 0 8px 0;
-    font-size: clamp(18px, 5vw, 24px);
-    color: #ffeb3b;
-    text-shadow: 0 0 10px rgba(255, 235, 59, 0.5);
-    letter-spacing: 2px;
+    min-height: 100dvh;
+    touch-action: manipulation;
   }
 
-  /* 響應式 7x7 盤面 */
-  .board {
-    --cell-size: clamp(41px, 12.3vw, 74px);
-    --gap-size: clamp(3px, 0.9vw, 6px);
-    display: grid;
-    grid-template-columns: repeat(7, var(--cell-size));
-    grid-template-rows: repeat(7, var(--cell-size));
-    gap: var(--gap-size);
-    background: #2b2b30;
+  /* 機台外框 (木紋/深色金屬框) */
+  .cabinet {
+    background: linear-gradient(180deg, #3e2723 0%, #261612 100%);
     padding: clamp(6px, 2vw, 12px);
     border-radius: 14px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.7), inset 0 0 15px rgba(255,255,255,0.05);
-    border: 2px solid #444;
+    border: 4px solid #5d4037;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.85), inset 0 0 10px rgba(0,0,0,0.8);
+    width: 100%;
+    max-width: 520px;
   }
+
+  /* 1. 頂部黑色壓克力計分板 (BONUS-WIN & CREDIT) */
+  .top-led-panel {
+    background: #111;
+    border: 3px solid #795548;
+    border-radius: 8px 8px 0 0;
+    padding: 6px 12px;
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: inset 0 4px 10px rgba(0,0,0,0.9);
+  }
+  .led-box {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .led-label {
+    color: #fbc02d;
+    font-size: clamp(11px, 3vw, 14px);
+    font-weight: 900;
+    letter-spacing: 1px;
+    text-shadow: 1px 1px 0 #000;
+    margin-bottom: 2px;
+  }
+  .led-screen {
+    background: #1a0505;
+    border: 2px solid #4e342e;
+    width: 100%;
+    text-align: right;
+    padding: 2px 10px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: clamp(22px, 6.5vw, 34px);
+    font-weight: 900;
+    color: #ff1744;
+    text-shadow: 0 0 8px #ff1744, 0 0 16px #d50000;
+    letter-spacing: 2px;
+    border-radius: 4px;
+  }
+
+  /* 2. 中間米白壓克力跑燈盤面 */
+  .acrylic-board {
+    background: #f4f1ea; /* 經典微黃壓克力底色 */
+    border-left: 3px solid #795548;
+    border-right: 3px solid #795548;
+    padding: 4px;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-template-rows: repeat(7, 1fr);
+    aspect-ratio: 1 / 1;
+    position: relative;
+  }
+
   .cell {
-    background: #333338;
-    border: 1.5px solid #555;
-    border-radius: clamp(6px, 1.5vw, 10px);
+    border: 1.5px solid #b71c1c; /* 經典紅框格線 */
+    background: #faf8f5;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    font-size: clamp(11px, 3vw, 16px);
-    font-weight: bold;
-    transition: transform 0.05s;
+    position: relative;
+    padding: 2px;
+  }
+  .cell-icon {
+    font-size: clamp(18px, 5.2vw, 30px);
+    line-height: 1;
+    filter: drop-shadow(1px 1px 0 rgba(0,0,0,0.25));
+  }
+  .cell-bar {
+    background: #212121;
+    color: #fff;
+    border: 1.5px solid #d32f2f;
+    font-size: clamp(8px, 2.2vw, 11px);
+    padding: 1px 3px;
+    line-height: 1.05;
+    text-align: center;
+    font-weight: 900;
+  }
+  .cell-once {
+    color: #b71c1c;
+    font-size: clamp(8px, 2.2vw, 11px);
+    font-weight: 900;
+    text-align: center;
     line-height: 1.1;
   }
-  .cell small {
-    font-size: clamp(9px, 2.2vw, 12px);
-    color: #bbb;
-    margin-top: 2px;
-  }
-  .cell.active {
-    background: #ffeb3b;
-    color: #000 !important;
-    border-color: #ff5722;
-    box-shadow: 0 0 15px #ffeb3b, inset 0 0 6px #ff9800;
-    transform: scale(1.06);
-    z-index: 2;
-  }
-  .cell.active span, .cell.active small {
-    color: #000 !important;
+  .cell-tag {
+    position: absolute;
+    top: 1px;
+    left: 2px;
+    font-size: clamp(7px, 1.8vw, 9px);
+    font-weight: 900;
+    color: #d32f2f;
   }
 
-  /* 中央控制面板 (自動適應內部 5x5 空間) */
-  .center-panel {
+  /* 格子內側的紅色小 LED 燈泡 (還原實機跑燈感) */
+  .led-bulb {
+    position: absolute;
+    width: clamp(7px, 2vw, 11px);
+    height: clamp(7px, 2vw, 11px);
+    background: #4a1515;
+    border: 1px solid #222;
+    border-radius: 50%;
+    z-index: 5;
+    transition: background 0.04s, box-shadow 0.04s;
+  }
+  /* 依據格子在盤面的位置，將燈泡放在內圈邊緣 */
+  .bulb-bottom { bottom: -5px; left: 50%; transform: translateX(-50%); }
+  .bulb-top    { top: -5px; left: 50%; transform: translateX(-50%); }
+  .bulb-left   { left: -5px; top: 50%; transform: translateY(-50%); }
+  .bulb-right  { right: -5px; top: 50%; transform: translateY(-50%); }
+
+  /* 亮燈狀態 */
+  .cell.active {
+    background: #fff9c4;
+    box-shadow: inset 0 0 12px #ffeb3b;
+  }
+  .cell.active .led-bulb {
+    background: #ff1744;
+    box-shadow: 0 0 8px #ff1744, 0 0 16px #ff5252, 0 0 22px #ffeb3b;
+    border-color: #fff;
+  }
+
+  /* 中央懷舊插畫看板 */
+  .center-art {
     grid-column: 2 / 7;
     grid-row: 2 / 7;
-    background: #121214;
-    border-radius: 10px;
-    border: 1.5px solid #333;
+    background: linear-gradient(180deg, #64b5f6 0%, #bbdefb 65%, #81c784 100%);
+    border: 2px solid #b71c1c;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
-    padding: clamp(8px, 2.5vw, 18px) clamp(6px, 2vw, 12px);
-    text-align: center;
+    padding: clamp(6px, 2vw, 14px);
+    position: relative;
     overflow: hidden;
   }
-  .score-bar {
-    display: flex;
-    justify-content: space-around;
-    width: 100%;
-    background: #1e1e24;
-    padding: clamp(4px, 1.2vw, 8px);
-    border-radius: 6px;
-    font-size: clamp(11px, 2.8vw, 15px);
-    border: 1px solid #333;
-  }
-  .score-val {
-    color: #00e676;
-    font-weight: bold;
-    font-size: clamp(13px, 3.4vw, 18px);
-    display: block;
-  }
-  .status-msg {
-    font-size: clamp(12px, 3.3vw, 18px);
-    font-weight: bold;
-    color: #ffeb3b;
-    min-height: clamp(20px, 5vw, 28px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0 4px;
-  }
-
-  /* 比倍顯示區 */
-  .gamble-box {
-    background: #1e1e24;
-    border: 1.5px solid #00e5ff;
-    border-radius: 8px;
-    padding: clamp(4px, 1.5vw, 8px) clamp(12px, 4vw, 25px);
-    box-shadow: 0 0 12px rgba(0, 229, 255, 0.2);
-  }
-  .gamble-title {
-    font-size: clamp(10px, 2.5vw, 13px);
-    color: #ccc;
-  }
-  .gamble-win-val {
-    color: #ffeb3b;
-    font-weight: bold;
-    font-size: clamp(12px, 3vw, 16px);
-  }
-  .gamble-num {
-    font-size: clamp(26px, 7.5vw, 46px);
+  /* 懷舊立體標題字「小瑪俐」 */
+  .retro-title {
+    font-size: clamp(22px, 6.5vw, 38px);
     font-weight: 900;
-    color: #00e5ff;
-    font-family: 'Courier New', Courier, monospace;
-    line-height: 1.05;
-    text-shadow: 0 0 10px rgba(0, 229, 255, 0.6);
-  }
-  .gamble-hint {
-    font-size: clamp(9px, 2.2vw, 11px);
-    color: #888;
-  }
-  .footer-hint {
-    font-size: clamp(9px, 2.3vw, 12px);
-    color: #666;
-  }
-
-  /* 押注按鈕網格 (手機自動 4 欄排列，寬度與盤面齊平) */
-  .controls {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 6px;
-    margin-top: 12px;
-    width: 100%;
-    max-width: 560px;
-  }
-  button {
-    padding: clamp(8px, 2vw, 10px) 4px;
-    font-size: clamp(13px, 3.2vw, 15px);
-    cursor: pointer;
-    border-radius: 8px;
-    border: none;
-    font-weight: bold;
-    transition: transform 0.08s;
-    box-shadow: 0 3px 0 rgba(0,0,0,0.4);
-  }
-  button:active:not(:disabled) {
-    transform: translateY(2px);
-    box-shadow: 0 1px 0 rgba(0,0,0,0.4);
-  }
-  button:disabled {
-    opacity: 0.45;
-    cursor: not-allowed;
-  }
-  .bet-btn {
-    background: #2979ff;
-    color: white;
-  }
-  .bet-btn small {
-    display: block;
-    font-size: clamp(10px, 2.4vw, 11px);
-    opacity: 0.85;
+    color: #d32f2f;
+    -webkit-text-stroke: 1.5px #fff;
+    text-shadow: 2px 3px 0 #1a237e, 0 0 10px rgba(255,255,255,0.8);
+    letter-spacing: 3px;
     margin-top: 2px;
   }
+  /* 中央單字元紅色比倍數字框 */
+  .center-gamble-led {
+    background: #1a0505;
+    border: 3px solid #424242;
+    border-radius: 6px;
+    padding: 2px 14px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: clamp(26px, 7.5vw, 44px);
+    font-weight: 900;
+    color: #ff1744;
+    text-shadow: 0 0 10px #ff1744;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+  }
+  .status-banner {
+    background: rgba(0, 0, 0, 0.78);
+    color: #ffeb3b;
+    font-size: clamp(11px, 3vw, 15px);
+    padding: 4px 10px;
+    border-radius: 12px;
+    border: 1px solid #fbc02d;
+    text-align: center;
+    width: 95%;
+  }
 
-  /* 底部主操作列 */
-  .action-bar {
+  /* 3. 底部 8 門押注顯示欄 (黃白直條分隔 + 綠色賠率牌) */
+  .bottom-bet-strip {
+    background: #fbc02d;
+    border: 3px solid #795548;
+    border-radius: 0 0 8px 8px;
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 3px;
+    padding: 4px;
+  }
+  .bet-slot {
+    background: #fffde7;
+    border: 1.5px solid #5d4037;
+    border-radius: 4px;
     display: flex;
-    gap: 10px;
-    margin-top: 12px;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    position: relative;
+    padding-bottom: 4px;
+    transition: transform 0.06s;
+  }
+  .bet-slot:active {
+    transform: scale(0.95);
+  }
+  /* 綠色賠率牌 */
+  .odds-badge {
+    background: #1b5e20;
+    color: #fff;
     width: 100%;
-    max-width: 560px;
+    text-align: center;
+    font-size: clamp(10px, 2.6vw, 13px);
+    font-weight: 900;
+    padding: 1px 0;
+    border-bottom: 1.5px solid #5d4037;
   }
-  .action-bar button {
-    flex: 1;
-    padding: clamp(11px, 3vw, 14px) 8px;
-    font-size: clamp(15px, 3.8vw, 18px);
+  .slot-icon {
+    font-size: clamp(16px, 4.5vw, 24px);
+    margin: 4px 0 2px 0;
   }
-  .start-btn { background: #00c853; color: white; flex: 2 !important; }
-  .clear-btn { background: #616161; color: white; }
-  .gamble-small { background: #aa00ff; color: white; }
-  .gamble-big   { background: #d50000; color: white; }
-  .collect-btn  { background: #ffab00; color: #000; }
+  .slot-bar-mini {
+    background: #212121;
+    color: #fff;
+    font-size: clamp(7px, 1.8vw, 9px);
+    padding: 2px 2px;
+    margin: 5px 0 3px 0;
+    border: 1px solid #d32f2f;
+    line-height: 1;
+    text-align: center;
+  }
+  /* 押注額紅字顯示 */
+  .slot-bet-num {
+    background: #212121;
+    color: #ff5252;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: clamp(11px, 2.8vw, 14px);
+    font-weight: bold;
+    width: 88%;
+    text-align: center;
+    border-radius: 2px;
+    padding: 1px 0;
+  }
+  .bet-slot.has-bet {
+    background: #fff59d;
+    box-shadow: inset 0 0 8px #ff9800;
+  }
+  .bet-slot.has-bet .slot-bet-num {
+    color: #00e676;
+    text-shadow: 0 0 5px #00e676;
+  }
 
-  /* 桌面版微調：大螢幕時押注按鈕改為 7 顆一排 */
-  @media (min-width: 600px) {
-    .controls {
-      grid-template-columns: repeat(7, 1fr);
-    }
-    .score-val {
-      display: inline;
-      margin-left: 4px;
-    }
+  /* 4. 機台實體操作按鈕區 */
+  .arcade-buttons {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+    width: 100%;
+    max-width: 520px;
   }
+  .arc-btn {
+    flex: 1;
+    padding: clamp(10px, 3vw, 14px) 6px;
+    border-radius: 10px;
+    border: 3px solid #212121;
+    font-size: clamp(14px, 3.6vw, 17px);
+    font-weight: 900;
+    color: #fff;
+    cursor: pointer;
+    text-shadow: 1px 1px 2px #000;
+    box-shadow: 0 5px 0 #111, inset 0 2px 3px rgba(255,255,255,0.4);
+    transition: transform 0.06s, box-shadow 0.06s;
+  }
+  .arc-btn:active:not(:disabled) {
+    transform: translateY(4px);
+    box-shadow: 0 1px 0 #111;
+  }
+  .arc-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .btn-clear   { background: linear-gradient(180deg, #757575, #424242); }
+  .btn-start   { background: linear-gradient(180deg, #00e676, #00a152); flex: 2; color: #000; text-shadow: none; }
+  .btn-small   { background: linear-gradient(180deg, #2979ff, #1565c0); }
+  .btn-big     { background: linear-gradient(180deg, #ff1744, #b71c1c); }
+  .btn-collect { background: linear-gradient(180deg, #ffd600, #ff8f00); color: #000; text-shadow: none; }
 </style>
 </head>
 <body>
 
-<h2>🎰 經典小瑪莉機台</h2>
-
-<div class="board" id="board">
-  <div class="center-panel">
-    <div class="score-bar">
-      <div>總餘額<span class="score-val" id="credit">1000</span></div>
-      <div>本局押注<span class="score-val" id="totalBet" style="color:#ff9100;">0</span></div>
+<div class="cabinet">
+  <!-- 頂部雙 LED 數位管 -->
+  <div class="top-led-panel">
+    <div class="led-box">
+      <div class="led-label">BONUS-WIN</div>
+      <div class="led-screen" id="winDisplay">0</div>
     </div>
-
-    <div class="status-msg" id="status">請點擊下方按鈕押注</div>
-
-    <!-- 比倍模式專用顯示區 -->
-    <div id="gambleDisplay" class="gamble-box" style="display:none;">
-      <div class="gamble-title">可比倍獎金：<span id="pendingWin" class="gamble-win-val">0</span></div>
-      <div id="gambleNumber" class="gamble-num">07</div>
-      <div class="gamble-hint">1~7 小 | 8~14 大</div>
+    <div class="led-box">
+      <div class="led-label">CREDIT</div>
+      <div class="led-screen" id="creditDisplay">1000</div>
     </div>
-
-    <div class="footer-hint">單次押注 10 分 • 點擊解鎖音效</div>
   </div>
+
+  <!-- 24格米白壓克力盤面 -->
+  <div class="acrylic-board" id="board">
+    <div class="center-art">
+      <div class="retro-title">小瑪俐</div>
+      <div style="font-size: clamp(28px, 8vw, 48px); filter: drop-shadow(2px 4px 4px rgba(0,0,0,0.3));">🍄🐢💎</div>
+      <div class="center-gamble-led" id="gambleNumber">0</div>
+      <div class="status-banner" id="status">點擊下方水果欄押注！</div>
+    </div>
+  </div>
+
+  <!-- 底部 8 門實體押注區 -->
+  <div class="bottom-bet-strip" id="betStrip"></div>
 </div>
 
-<!-- 一般押注控制區 -->
-<div class="controls" id="betControls"></div>
-
-<div class="action-bar" id="mainActions">
-  <button class="clear-btn" id="clearBtn" onclick="clearBets()">清除押注</button>
-  <button class="start-btn" id="startBtn" onclick="startGame()">開始 (START)</button>
+<!-- 主控制按鈕列 -->
+<div class="arcade-buttons" id="mainActions">
+  <button class="arc-btn btn-clear" id="clearBtn" onclick="clearBets()">退幣清除</button>
+  <button class="arc-btn btn-start" id="startBtn" onclick="startGame()">開始 (START)</button>
 </div>
 
-<!-- 比倍控制區 (預設隱藏) -->
-<div class="action-bar" id="gambleControls" style="display:none;">
-  <button class="gamble-small" onclick="playGamble('SMALL')">猜小 (1~7)</button>
-  <button class="gamble-big" onclick="playGamble('BIG')">猜大 (8~14)</button>
-  <button class="collect-btn" onclick="collectWin()">收下得分</button>
+<!-- 比倍專用按鈕列 -->
+<div class="arcade-buttons" id="gambleActions" style="display:none;">
+  <button class="arc-btn btn-small" onclick="playGamble('SMALL')">猜小 (1~7)</button>
+  <button class="arc-btn btn-big" onclick="playGamble('BIG')">猜大 (8~14)</button>
+  <button class="arc-btn btn-collect" onclick="collectWin()">得分入袋</button>
 </div>
 
 <script>
@@ -264,66 +358,55 @@
 // 1. Web Audio API 復古街機音效引擎
 // ==========================================
 class ArcadeAudio {
-  constructor() {
-    this.ctx = null;
-  }
-
+  constructor() { this.ctx = null; }
   init() {
     if (!this.ctx) {
       const AudioContext = window.AudioContext || window.webkitAudioContext;
       this.ctx = new AudioContext();
     }
-    if (this.ctx.state === 'suspended') {
-      this.ctx.resume();
-    }
+    if (this.ctx.state === 'suspended') this.ctx.resume();
   }
-
   playTone(freq, type = 'square', duration = 0.08, startTime = null, volume = 0.1) {
     this.init();
     const now = startTime || this.ctx.currentTime;
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
-
     osc.type = type;
     osc.frequency.setValueAtTime(freq, now);
-
     gain.gain.setValueAtTime(volume, now);
     gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
-
     osc.connect(gain);
     gain.connect(this.ctx.destination);
-
     osc.start(now);
     osc.stop(now + duration);
   }
-
   playBet() {
     this.init();
     const now = this.ctx.currentTime;
-    this.playTone(987.77, 'square', 0.05, now, 0.08);
-    this.playTone(1318.51, 'square', 0.10, now + 0.05, 0.08);
+    this.playTone(987.77, 'square', 0.04, now, 0.08);
+    this.playTone(1318.51, 'square', 0.09, now + 0.04, 0.08);
   }
-
   playStep(step, totalSteps) {
     const progress = step / totalSteps;
-    const pitchBoost = Math.sin(progress * Math.PI) * 450;
-    const freq = 400 + pitchBoost;
-    this.playTone(freq, 'triangle', 0.04, null, 0.15);
+    const freq = 420 + Math.sin(progress * Math.PI) * 480;
+    this.playTone(freq, 'triangle', 0.035, null, 0.15);
   }
-
   playWin(isBigWin = false) {
     this.init();
     const now = this.ctx.currentTime;
     const notes = isBigWin
       ? [523.25, 659.25, 783.99, 1046.50, 783.99, 1046.50, 1318.51]
       : [523.25, 659.25, 783.99, 1046.50];
-
     notes.forEach((freq, idx) => {
-      const dur = (idx === notes.length - 1) ? 0.28 : 0.08;
+      const dur = (idx === notes.length - 1) ? 0.25 : 0.07;
       this.playTone(freq, 'square', dur, now + idx * 0.08, 0.12);
     });
   }
-
+  playOnceMore() {
+    this.init();
+    const now = this.ctx.currentTime;
+    [587.33, 880, 1174.66].forEach((f, i) => this.playTone(f, 'square', 0.08, now + i * 0.07, 0.12));
+  }
   playLose() {
     this.init();
     const now = this.ctx.currentTime;
@@ -339,42 +422,64 @@ class ArcadeAudio {
     osc.start(now);
     osc.stop(now + 0.25);
   }
-
   playGambleTick(step) {
     const freq = (step % 2 === 0) ? 880 : 1174.66;
     this.playTone(freq, 'square', 0.03, null, 0.08);
   }
-
   playGambleLose() {
     this.init();
     const now = this.ctx.currentTime;
-    const notes = [392.00, 349.23, 329.63, 261.63];
-    notes.forEach((freq, idx) => {
+    [392.00, 349.23, 329.63, 261.63].forEach((freq, idx) => {
       this.playTone(freq, 'sawtooth', 0.11, now + idx * 0.09, 0.12);
     });
   }
 }
-
 const sfx = new ArcadeAudio();
 
 // ==========================================
-// 2. 遊戲資料設定與權重表
+// 2. 經典 8 門押注與 24 格盤面資料 (還原實機配置)
 // ==========================================
-const SYMBOLS = {
-  BAR:    { name: 'BAR',  odds: 50, color: '#ff4081' },
-  SEVEN:  { name: '77',   odds: 30, color: '#ff5252' },
-  STAR:   { name: '雙星', odds: 20, color: '#ffd740' },
-  MELON:  { name: '西瓜', odds: 15, color: '#69f0ae' },
-  BELL:   { name: '鈴鐺', odds: 10, color: '#ffab40' },
-  ORANGE: { name: '橘子', odds: 5,  color: '#ff6e40' },
-  APPLE:  { name: '蘋果', odds: 2,  color: '#ff8a80' }
-};
+const BET_ITEMS = [
+  { key: 'BAR',    name: 'BAR', odds: 100, icon: 'BAR', isBar: true },
+  { key: 'SEVEN',  name: '77',  odds: 40,  icon: '7️⃣' },
+  { key: 'STAR',   name: '雙星', odds: 30,  icon: '⭐⭐' },
+  { key: 'MELON',  name: '西瓜', odds: 20,  icon: '🍉' },
+  { key: 'BELL',   name: '鈴鐺', odds: 20,  icon: '🔔' },
+  { key: 'LEMON',  name: '檸檬', odds: 15,  icon: '🍋' },
+  { key: 'ORANGE', name: '橘子', odds: 10,  icon: '🍊' },
+  { key: 'APPLE',  name: '蘋果', odds: 5,   icon: '🍎' }
+];
 
+// 24 格盤面配置 (含大/小倍數與左右兩側經典 ONCE MORE)
 const BOARD_DATA = [
-  { type: 'ORANGE', weight: 40 }, { type: 'BELL', weight: 25 },   { type: 'BAR', weight: 2 },     { type: 'APPLE', weight: 60 },  { type: 'MELON', weight: 15 },  { type: 'STAR', weight: 10 },  { type: 'APPLE', weight: 60 },
-  { type: 'SEVEN', weight: 6 },   { type: 'APPLE', weight: 60 },  { type: 'ORANGE', weight: 40 }, { type: 'BELL', weight: 25 },   { type: 'APPLE', weight: 60 },
-  { type: 'MELON', weight: 15 },  { type: 'STAR', weight: 10 },   { type: 'APPLE', weight: 60 },  { type: 'ORANGE', weight: 40 }, { type: 'SEVEN', weight: 6 },   { type: 'BELL', weight: 25 },  { type: 'APPLE', weight: 60 },
-  { type: 'ORANGE', weight: 40 }, { type: 'APPLE', weight: 60 },  { type: 'MELON', weight: 15 },  { type: 'BELL', weight: 25 },   { type: 'STAR', weight: 10 }
+  // 上排 (左到右 7 格)
+  { type: 'ORANGE', mult: 1, weight: 35, bulb: 'bulb-bottom' },
+  { type: 'BELL',   mult: 1, weight: 22, bulb: 'bulb-bottom' },
+  { type: 'BAR',    mult: 0.5, weight: 3, label: '50', bulb: 'bulb-bottom' },
+  { type: 'BAR',    mult: 1, weight: 1, label: '100', bulb: 'bulb-bottom' },
+  { type: 'APPLE',  mult: 1, weight: 55, bulb: 'bulb-bottom' },
+  { type: 'APPLE',  mult: 0.4, weight: 45, label: 'x2', bulb: 'bulb-bottom' },
+  { type: 'LEMON',  mult: 1, weight: 25, bulb: 'bulb-bottom' },
+  // 右排 (上到下 5 格)
+  { type: 'MELON',  mult: 1, weight: 18, bulb: 'bulb-left' },
+  { type: 'MELON',  mult: 0.15, weight: 40, label: 'x3', bulb: 'bulb-left' },
+  { type: 'ONCE',   mult: 0, weight: 18, bulb: 'bulb-left' },
+  { type: 'APPLE',  mult: 1, weight: 55, bulb: 'bulb-left' },
+  { type: 'ORANGE', mult: 0.3, weight: 45, label: 'x3', bulb: 'bulb-left' },
+  // 下排 (右到左 7 格)
+  { type: 'ORANGE', mult: 1, weight: 35, bulb: 'bulb-top' },
+  { type: 'BELL',   mult: 1, weight: 22, bulb: 'bulb-top' },
+  { type: 'SEVEN',  mult: 0.1, weight: 35, label: 'x3', bulb: 'bulb-top' },
+  { type: 'SEVEN',  mult: 1, weight: 8,  bulb: 'bulb-top' },
+  { type: 'APPLE',  mult: 1, weight: 55, bulb: 'bulb-top' },
+  { type: 'LEMON',  mult: 0.2, weight: 40, label: 'x3', bulb: 'bulb-top' },
+  { type: 'LEMON',  mult: 1, weight: 25, bulb: 'bulb-top' },
+  // 左排 (下到上 5 格)
+  { type: 'STAR',   mult: 1, weight: 12, bulb: 'bulb-right' },
+  { type: 'STAR',   mult: 0.1, weight: 35, label: 'x3', bulb: 'bulb-right' },
+  { type: 'ONCE',   mult: 0, weight: 18, bulb: 'bulb-right' },
+  { type: 'APPLE',  mult: 1, weight: 55, bulb: 'bulb-right' },
+  { type: 'BELL',   mult: 0.15, weight: 40, label: 'x3', bulb: 'bulb-right' }
 ];
 
 const GRID_POS = [
@@ -393,7 +498,7 @@ let pendingWin = 0;
 let isGambling = false;
 
 // ==========================================
-// 3. 初始化與 UI 控制
+// 3. 初始化畫面
 // ==========================================
 function init() {
   const board = document.getElementById('board');
@@ -403,21 +508,44 @@ function init() {
     div.id = `cell-${idx}`;
     div.style.gridRow = GRID_POS[idx][0];
     div.style.gridColumn = GRID_POS[idx][1];
-    div.innerHTML = `<span style="color:${SYMBOLS[item.type].color}">${SYMBOLS[item.type].name}</span><small>x${SYMBOLS[item.type].odds}</small>`;
+
+    let inner = '';
+    if (item.type === 'ONCE') {
+      inner = `<div class="cell-once">ONCE<br>MORE</div>`;
+    } else if (item.type === 'BAR') {
+      inner = `<div class="cell-bar">BAR<br>${item.label}<br>BAR</div>`;
+    } else {
+      const info = BET_ITEMS.find(b => b.key === item.type);
+      const tag = item.label ? `<span class="cell-tag">${item.label}</span>` : '';
+      inner = `${tag}<div class="cell-icon">${info.icon}</div>`;
+    }
+    inner += `<div class="led-bulb ${item.bulb}"></div>`;
+    div.innerHTML = inner;
     board.appendChild(div);
   });
 
-  const betControls = document.getElementById('betControls');
-  Object.keys(SYMBOLS).forEach(key => {
-    bets[key] = 0;
-    const btn = document.createElement('button');
-    btn.className = 'bet-btn';
-    btn.id = `btn-${key}`;
-    btn.innerHTML = `${SYMBOLS[key].name} (0)<small>x${SYMBOLS[key].odds}</small>`;
-    btn.onclick = () => placeBet(key);
-    betControls.appendChild(btn);
+  const betStrip = document.getElementById('betStrip');
+  BET_ITEMS.forEach(item => {
+    bets[item.key] = 0;
+    const slot = document.createElement('div');
+    slot.className = 'bet-slot';
+    slot.id = `slot-${item.key}`;
+    slot.onclick = () => placeBet(item.key);
+
+    const iconHtml = item.isBar
+      ? `<div class="slot-bar-mini">BAR<br>BAR</div>`
+      : `<div class="slot-icon">${item.icon}</div>`;
+
+    slot.innerHTML = `
+      <div class="odds-badge">${item.odds}</div>
+      ${iconHtml}
+      <div class="slot-bet-num" id="bet-num-${item.key}">0</div>
+    `;
+    betStrip.appendChild(slot);
   });
+
   highlightCell(0);
+  updateUI();
 }
 
 function placeBet(key) {
@@ -440,11 +568,15 @@ function clearBets() {
 }
 
 function updateUI() {
-  document.getElementById('credit').innerText = credit;
-  const total = Object.values(bets).reduce((a, b) => a + b, 0);
-  document.getElementById('totalBet').innerText = total;
-  Object.keys(SYMBOLS).forEach(key => {
-    document.getElementById(`btn-${key}`).innerHTML = `${SYMBOLS[key].name} (${bets[key]})<small>x${SYMBOLS[key].odds}</small>`;
+  document.getElementById('creditDisplay').innerText = credit;
+  document.getElementById('winDisplay').innerText = pendingWin;
+
+  BET_ITEMS.forEach(item => {
+    const val = bets[item.key];
+    document.getElementById(`bet-num-${item.key}`).innerText = val;
+    const slotEl = document.getElementById(`slot-${item.key}`);
+    if (val > 0) slotEl.classList.add('has-bet');
+    else slotEl.classList.remove('has-bet');
   });
 }
 
@@ -454,7 +586,7 @@ function highlightCell(idx) {
 }
 
 // ==========================================
-// 4. 權重抽獎與跑燈動畫
+// 4. 抽獎與跑燈 (支援 ONCE MORE 送燈)
 // ==========================================
 function getWeightedTarget() {
   const totalWeight = BOARD_DATA.reduce((sum, item) => sum + item.weight, 0);
@@ -466,33 +598,33 @@ function getWeightedTarget() {
   return 0;
 }
 
-function startGame() {
-  let totalBet = Object.values(bets).reduce((a, b) => a + b, 0);
-  
-  if (totalBet === 0 && Object.values(lastBets).reduce((a, b) => a + b, 0) > 0) {
-    const lastTotal = Object.values(lastBets).reduce((a, b) => a + b, 0);
-    if (credit >= lastTotal) {
-      credit -= lastTotal;
-      bets = { ...lastBets };
-      totalBet = lastTotal;
-      sfx.playBet();
-      updateUI();
+function startGame(isFreeSpin = false) {
+  if (!isFreeSpin) {
+    let totalBet = Object.values(bets).reduce((a, b) => a + b, 0);
+    if (totalBet === 0 && Object.values(lastBets).reduce((a, b) => a + b, 0) > 0) {
+      const lastTotal = Object.values(lastBets).reduce((a, b) => a + b, 0);
+      if (credit >= lastTotal) {
+        credit -= lastTotal;
+        bets = { ...lastBets };
+        totalBet = lastTotal;
+        sfx.playBet();
+        updateUI();
+      }
     }
+    if (isRunning || totalBet === 0) {
+      document.getElementById('status').innerText = '請先點擊下方欄位押注！';
+      return;
+    }
+    lastBets = { ...bets };
   }
 
-  if (isRunning || totalBet === 0) {
-    document.getElementById('status').innerText = '請先押注才能開始！';
-    return;
-  }
-
-  lastBets = { ...bets };
   isRunning = true;
   document.getElementById('startBtn').disabled = true;
   document.getElementById('clearBtn').disabled = true;
-  document.getElementById('status').innerText = '開獎中...';
+  document.getElementById('status').innerText = isFreeSpin ? '🔥 ONCE MORE 免費再轉！' : '開獎跑燈中...';
 
   const targetIndex = getWeightedTarget();
-  const rounds = 3;
+  const rounds = isFreeSpin ? 2 : 3;
   const totalSteps = (rounds * 24) + ((targetIndex - currentIndex + 24) % 24);
   
   let step = 0;
@@ -503,11 +635,10 @@ function startGame() {
     step++;
 
     if (step < totalSteps) {
-      let delay = 35;
+      let delay = 32;
       const remain = totalSteps - step;
-      if (step < 8) delay = 150 - step * 15;
-      else if (remain < 12) delay = 40 + Math.pow(12 - remain, 2) * 3;
-      
+      if (step < 8) delay = 140 - step * 14;
+      else if (remain < 12) delay = 38 + Math.pow(12 - remain, 2) * 3;
       setTimeout(runStep, delay);
     } else {
       settleGame(targetIndex);
@@ -517,37 +648,45 @@ function startGame() {
 }
 
 function settleGame(targetIndex) {
-  const winType = BOARD_DATA[targetIndex].type;
-  const odds = SYMBOLS[winType].odds;
-  const winAmount = bets[winType] * odds;
-  
+  const cell = BOARD_DATA[targetIndex];
+
+  // 1. 觸發經典 ONCE MORE (再來一次)
+  if (cell.type === 'ONCE') {
+    sfx.playOnceMore();
+    document.getElementById('status').innerText = '✨ 中 ONCE MORE！免費送燈一次！';
+    setTimeout(() => startGame(true), 900);
+    return;
+  }
+
+  // 2. 一般圖案結算
+  const betInfo = BET_ITEMS.find(b => b.key === cell.type);
+  const rawWin = bets[cell.type] * betInfo.odds * cell.mult;
+  const winAmount = Math.round(rawWin);
+
   Object.keys(bets).forEach(k => bets[k] = 0);
-  updateUI();
   isRunning = false;
 
   if (winAmount > 0) {
     pendingWin = winAmount;
-    sfx.playWin(odds >= 20);
+    updateUI();
+    sfx.playWin(betInfo.odds * cell.mult >= 30);
     enterGambleMode();
   } else {
+    updateUI();
     sfx.playLose();
-    document.getElementById('status').innerText = `開出 ${SYMBOLS[winType].name}，再接再厲！`;
+    document.getElementById('status').innerText = `開出【${betInfo.name}】，再接再厲！`;
     document.getElementById('startBtn').disabled = false;
     document.getElementById('clearBtn').disabled = false;
   }
 }
 
 // ==========================================
-// 5. 比倍（猜大小）模式邏輯
+// 5. 比倍（猜大小）模式
 // ==========================================
 function enterGambleMode() {
-  document.getElementById('status').innerText = '🎉 中獎！比倍或得分？';
-  document.getElementById('pendingWin').innerText = pendingWin;
-  document.getElementById('gambleNumber').innerText = '??';
-  
-  document.getElementById('gambleDisplay').style.display = 'block';
-  document.getElementById('gambleControls').style.display = 'flex';
-  document.getElementById('betControls').style.display = 'none';
+  document.getElementById('status').innerText = '🎉 中獎！要「比倍」還是「得分」？';
+  document.getElementById('gambleNumber').innerText = '?';
+  document.getElementById('gambleActions').style.display = 'flex';
   document.getElementById('mainActions').style.display = 'none';
 }
 
@@ -559,17 +698,17 @@ function playGamble(guess) {
   let tick = 0;
   const maxTicks = 20;
   const numEl = document.getElementById('gambleNumber');
-  document.getElementById('status').innerText = guess === 'SMALL' ? '押注：小 (1~7)...' : '押注：大 (8~14)...';
+  document.getElementById('status').innerText = guess === 'SMALL' ? '比倍押注：小 (1~7)' : '比倍押注：大 (8~14)';
 
   const timer = setInterval(() => {
     const fakeNum = Math.floor(Math.random() * 14) + 1;
-    numEl.innerText = fakeNum.toString().padStart(2, '0');
+    numEl.innerText = fakeNum;
     sfx.playGambleTick(tick);
     tick++;
 
     if (tick >= maxTicks) {
       clearInterval(timer);
-      numEl.innerText = finalNum.toString().padStart(2, '0');
+      numEl.innerText = finalNum;
       evaluateGamble(guess, finalNum);
     }
   }, 60);
@@ -581,14 +720,15 @@ function evaluateGamble(guess, finalNum) {
 
   if (isWin) {
     pendingWin *= 2;
+    updateUI();
     sfx.playWin(false);
-    document.getElementById('pendingWin').innerText = pendingWin;
-    document.getElementById('status').innerText = `猜中 (${finalNum})！獎金翻倍！`;
+    document.getElementById('status').innerText = `開出 ${finalNum} 猜中翻倍！繼續比倍或得分？`;
     isGambling = false;
   } else {
     sfx.playGambleLose();
-    document.getElementById('status').innerText = `開出 ${finalNum}，比倍失敗歸零`;
+    document.getElementById('status').innerText = `開出 ${finalNum}，比倍失敗歸零！`;
     pendingWin = 0;
+    updateUI();
     isGambling = false;
     setTimeout(exitGambleMode, 1300);
   }
@@ -602,14 +742,13 @@ function collectWin() {
     pendingWin = 0;
     updateUI();
   }
-  document.getElementById('status').innerText = '💰 獎金入袋！按開始可續押';
+  document.getElementById('gambleNumber').innerText = '0';
+  document.getElementById('status').innerText = '💰 得分已入袋！點擊押注或按開始續押';
   exitGambleMode();
 }
 
 function exitGambleMode() {
-  document.getElementById('gambleDisplay').style.display = 'none';
-  document.getElementById('gambleControls').style.display = 'none';
-  document.getElementById('betControls').style.display = 'grid';
+  document.getElementById('gambleActions').style.display = 'none';
   document.getElementById('mainActions').style.display = 'flex';
   document.getElementById('startBtn').disabled = false;
   document.getElementById('clearBtn').disabled = false;
